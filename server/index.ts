@@ -88,14 +88,35 @@ app.use((req, res, next) => {
       serveStatic(app);
     }
 
-    const port = 5000;
-    server.listen({
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    }, () => {
-      log(`Server running at http://0.0.0.0:${port}`);
-    });
+    // Try primary port, fall back to alternative if needed
+    const tryPort = (port: number): Promise<number> => {
+      return new Promise((resolve, reject) => {
+        server.listen({
+          port,
+          host: "0.0.0.0",
+          reusePort: true,
+        }, () => {
+          log(`Server running at http://0.0.0.0:${port}`);
+          resolve(port);
+        }).on('error', (err: any) => {
+          if (err.code === 'EADDRINUSE') {
+            log(`Port ${port} is busy, trying alternative port`);
+            resolve(0); // Signal to try another port
+          } else {
+            reject(err);
+          }
+        });
+      });
+    };
+    
+    // Try port 5000 first, then fall back to random port if needed
+    const port = await tryPort(5000) || await tryPort(0);
+    if (port === 0) {
+      const address = server.address();
+      if (address && typeof address !== 'string') {
+        log(`Server running at http://0.0.0.0:${address.port}`);
+      }
+    }
   } catch (error) {
     console.error('Server startup error:', error);
     process.exit(1);
