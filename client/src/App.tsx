@@ -5,7 +5,6 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { queryClient } from "./lib/queryClient";
 import { ProtectedRoute } from "./lib/protected-route";
-import { ErrorBoundary } from "@/components/error-boundary";
 
 import LandingPage from "@/pages/landing-page";
 import AuthPage from "@/pages/auth-page";
@@ -34,8 +33,10 @@ function App() {
     <ThemeProvider defaultTheme="system" storageKey="centsible-theme">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Router />
-          <Toaster />
+          <div className="min-h-screen bg-background text-foreground">
+            <Router />
+            <Toaster />
+          </div>
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
