@@ -12,6 +12,7 @@ import DashboardPage from "@/pages/dashboard-page";
 import AnalyticsPage from "@/pages/analytics-page";
 import WalletPage from "@/pages/wallet-page";
 import SavingsPage from "@/pages/savings-page";
+import SettingsPage from "@/pages/settings-page";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       <ProtectedRoute path="/analytics" component={AnalyticsPage} />
       <ProtectedRoute path="/wallet" component={WalletPage} />
       <ProtectedRoute path="/savings" component={SavingsPage} />
+      <ProtectedRoute path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>
   );

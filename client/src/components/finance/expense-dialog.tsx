@@ -10,6 +10,7 @@ import { insertTransactionSchema } from "@shared/schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
+import { z } from "zod";
 
 const expenseCategories = [
   "Food",
@@ -18,13 +19,15 @@ const expenseCategories = [
   "Bills",
   "Entertainment",
   "Other",
-];
+] as const;
+
+type FormData = z.infer<typeof insertTransactionSchema>;
 
 export default function ExpenseDialog() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const form = useForm({
+  const form = useForm<FormData>({
     resolver: zodResolver(insertTransactionSchema),
     defaultValues: {
       amount: 0,
@@ -36,9 +39,8 @@ export default function ExpenseDialog() {
   });
 
   const expenseMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const res = await apiRequest("POST", "/api/transactions", data);
-      return res.json();
+    mutationFn: async (data: FormData) => {
+      return apiRequest("POST", "/api/transactions", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
@@ -48,10 +50,11 @@ export default function ExpenseDialog() {
     },
   });
 
-  const onSubmit = (values: any) => {
+  const onSubmit = (values: FormData) => {
     expenseMutation.mutate({
       ...values,
       amount: Number(values.amount),
+      date: new Date(values.date).toISOString().split('T')[0],
     });
   };
 
@@ -64,7 +67,7 @@ export default function ExpenseDialog() {
         <DialogHeader>
           <DialogTitle>Add New Expense</DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -74,7 +77,12 @@ export default function ExpenseDialog() {
                 <FormItem>
                   <FormLabel>Amount</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -116,7 +124,11 @@ export default function ExpenseDialog() {
                 <FormItem>
                   <FormLabel>Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input 
+                      type="date" 
+                      {...field}
+                      value={field.value}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
