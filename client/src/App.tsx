@@ -31,16 +31,14 @@ function Router() {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider defaultTheme="system" storageKey="centsible-theme">
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <Router />
-            <Toaster />
-          </AuthProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+    <ThemeProvider defaultTheme="system" storageKey="centsible-theme">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Router />
+          <Toaster />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

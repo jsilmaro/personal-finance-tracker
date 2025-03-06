@@ -18,6 +18,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render will show the fallback UI.
     return {
       hasError: true,
       error
@@ -25,6 +26,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log the error to console for debugging
     console.error('Error caught by boundary:', error, errorInfo);
   }
 
@@ -41,11 +43,15 @@ export class ErrorBoundary extends React.Component<Props, State> {
                 {this.state.error?.message || 'An unexpected error occurred'}
               </p>
               <Button 
-                onClick={() => window.location.reload()} 
+                onClick={() => {
+                  // Clear the error state and try to re-render
+                  this.setState({ hasError: false, error: undefined });
+                  window.location.reload();
+                }} 
                 variant="secondary"
                 className="w-full"
               >
-                Reload Page
+                Try Again
               </Button>
             </CardContent>
           </Card>
