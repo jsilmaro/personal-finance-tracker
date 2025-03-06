@@ -1,0 +1,81 @@
+make a Personal Finance Tracker web app using react (use shadcn for components such as sidebar, etc.).
+It should be named: Centsible 
+
+It should have these pages: 
+
+~ Landing Page
+
+~ Dashboard Page: 
+	-Total balance: The money that the user have at the moment (it can be edited so a 'reset balance' button should be present) 
+	-Total expenses: All the expenses of the user in total (they can add new expenses so an 'add expense' button should be present)
+	-Total income: All the income of the user in total (they can add new income so an 'add income' button should be present)
+
+	-Transaction List: all the transaction made the by user, it has the transaction name, categories(whether expense or income), date, and nominal(the amount)
+	-All, Expense, Income Bar: above the transaction list. It filters the transactions by expenses, income, and all)
+	
+
+~ Analytics Page:
+	-Total balance: The money that the user have at the moment.
+	-Total expenses: All the expenses of the user in total
+	-Total income: All the income of the user in total
+	- Overall Statistics: 
+		- Bar chart: Progress Tracker for saving goals
+		- Pie chart: Spending Breakdown(by type of things they spent)
+		- Line chart: Spending Vs. Savings
+
+
+~ Wallet Page: Divided into 2 sections;
+	- Money insight (2/3rd of the division. on the left side). It should contain the following;
+		- choice bar: last 30 days, and other months. to filter the page base on the month
+		- Total Balance
+		- Total income
+		- Total Expenses
+		- Total Save
+		- Bar graph (Showing the total balance over the month)
+		- Transaction List
+
+	- My Card (1/3rd of the division. on the right side): summary 
+		- pie graph of the different things the user spent on
+		- balance
+		- Top saving goals: list of saving goals that has mostly saved on
+		- Export Report Button: To export the report
+		- Add Expense Button: To add expense 
+~ Savings Page:
+	- small section from wallet page
+	- Overview statistics 
+	- pie chart (top spending)
+	- Saving Goals list
+
+~ Sign Up Page
+
+
+~ Sign In Page
+
+
+It should also have the following: 
+
+- top bar (page header)
+	-Search bar: above the page is a search bar to search or filter keywords from the transactions. 
+	-Notification bell icon: in line with the search bar, but on the right-most side. when clicking it should show the notifications for the user. 
+	Half moon icon: on the left side of the notification bell. the user can click it to switch between dark mode or light mode.
+
+- sidebar 
+	   - App Icon
+	   - dashboard icon (will lead you to dashboard page)
+	   - wallet icon (will lead to wallet page)
+	   - analytics icon (will lead you to analytics page)
+	   - savings icons (will lead you to saving page) 
+	   - setting icons (will lead you to settings page)
+	   - user profile (user can pick profiles cuz user can have multiple profiles, and log out button)
+
+- Pop Up Expense: A pop up after clicking the Expense Button. It should make the user input the following:
+	- Amount (value)
+	- Category (food, shopping, etc.)
+	- Date (the user can select date)
+
+- Pop Up Income: A pop up after clicking the Income Button
+	- Amount (value)
+	- Category (salary, allowance, etc.)
+	- Date (the user can select date)
+
+This should be the background color: background-image: linear-gradient(to top, #a7a6cb 0%, #8989ba 52%, #8989ba 100%);
