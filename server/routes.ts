@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
@@ -8,14 +8,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
 
   // Middleware to check authentication
-  const requireAuth = (req: any, res: any, next: any) => {
+  const requireAuth = (req: Request, res: any, next: any) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     next();
   };
 
   // Transactions routes
-  app.get("/api/transactions", requireAuth, async (req, res, next) => {
+  app.get("/api/transactions", requireAuth, async (req: Request & { user?: any }, res, next) => {
     try {
+      if (!req.user) return res.sendStatus(401);
       const transactions = await storage.getTransactions(req.user.id);
       res.json(transactions);
     } catch (error) {
@@ -23,8 +24,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/transactions", requireAuth, async (req, res, next) => {
+  app.post("/api/transactions", requireAuth, async (req: Request & { user?: any }, res, next) => {
     try {
+      if (!req.user) return res.sendStatus(401);
       const parsed = insertTransactionSchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json(parsed.error);
@@ -41,8 +43,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Savings goals routes
-  app.get("/api/savings-goals", requireAuth, async (req, res, next) => {
+  app.get("/api/savings-goals", requireAuth, async (req: Request & { user?: any }, res, next) => {
     try {
+      if (!req.user) return res.sendStatus(401);
       const goals = await storage.getSavingsGoals(req.user.id);
       res.json(goals);
     } catch (error) {
@@ -50,8 +53,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/savings-goals", requireAuth, async (req, res, next) => {
+  app.post("/api/savings-goals", requireAuth, async (req: Request & { user?: any }, res, next) => {
     try {
+      if (!req.user) return res.sendStatus(401);
       const parsed = insertSavingsGoalSchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json(parsed.error);
@@ -64,8 +68,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/savings-goals/:id", requireAuth, async (req, res, next) => {
+  app.patch("/api/savings-goals/:id", requireAuth, async (req: Request & { user?: any }, res, next) => {
     try {
+      if (!req.user) return res.sendStatus(401);
       const amount = Number(req.body.amount);
       if (isNaN(amount)) {
         return res.status(400).json({ message: "Invalid amount" });

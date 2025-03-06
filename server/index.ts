@@ -15,9 +15,11 @@ declare module 'express-session' {
 
 const app = express();
 
-// Enable CORS for development
+// Enable CORS with credentials for development
 app.use(cors({
-  origin: true,
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.CLIENT_URL 
+    : 'http://localhost:5000',
   credentials: true
 }));
 
