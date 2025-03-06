@@ -8,18 +8,18 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Transaction methods
   getTransactions(userId: number): Promise<Transaction[]>;
   createTransaction(userId: number, transaction: InsertTransaction): Promise<Transaction>;
   updateUserBalance(userId: number, amount: number): Promise<User>;
-  
+
   // Savings goals methods
   getSavingsGoals(userId: number): Promise<SavingsGoal[]>;
   createSavingsGoal(userId: number, goal: InsertSavingsGoal): Promise<SavingsGoal>;
   updateSavingsGoal(goalId: number, amount: number): Promise<SavingsGoal>;
-  
-  sessionStore: session.SessionStore;
+
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
@@ -27,7 +27,7 @@ export class MemStorage implements IStorage {
   private transactions: Map<number, Transaction>;
   private savingsGoals: Map<number, SavingsGoal>;
   private currentId: number;
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
     this.users = new Map();
@@ -68,7 +68,8 @@ export class MemStorage implements IStorage {
       ...transaction,
       id,
       userId,
-      date: new Date()
+      date: new Date(),
+      description: transaction.description || null
     };
     this.transactions.set(id, newTransaction);
     return newTransaction;
@@ -77,7 +78,7 @@ export class MemStorage implements IStorage {
   async updateUserBalance(userId: number, amount: number): Promise<User> {
     const user = await this.getUser(userId);
     if (!user) throw new Error("User not found");
-    
+
     const updatedUser = {
       ...user,
       balance: user.balance + amount
@@ -108,7 +109,7 @@ export class MemStorage implements IStorage {
   async updateSavingsGoal(goalId: number, amount: number): Promise<SavingsGoal> {
     const goal = this.savingsGoals.get(goalId);
     if (!goal) throw new Error("Savings goal not found");
-    
+
     const updatedGoal = {
       ...goal,
       currentAmount: goal.currentAmount + amount,
