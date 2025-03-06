@@ -6,6 +6,10 @@ interface Props {
   children: React.ReactNode;
 }
 
+interface Props {
+  children: React.ReactNode;
+}
+
 interface State {
   hasError: boolean;
   error?: Error;
