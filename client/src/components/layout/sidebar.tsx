@@ -67,3 +67,75 @@ export default function Sidebar() {
     </div>
   );
 }
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
+import {
+  BarChart,
+  Home,
+  Settings,
+  Wallet,
+  CreditCard
+} from "lucide-react";
+
+export default function Sidebar() {
+  const [location] = useLocation();
+  const { user } = useAuth();
+
+  const navigation = [
+    { name: "Dashboard", href: "/dashboard", icon: Home, current: location === "/dashboard" },
+    { name: "Wallet", href: "/wallet", icon: Wallet, current: location === "/wallet" },
+    { name: "Analytics", href: "/analytics", icon: BarChart, current: location === "/analytics" },
+    { name: "Savings", href: "/savings", icon: CreditCard, current: location === "/savings" },
+    { name: "Settings", href: "/settings", icon: Settings, current: location === "/settings" },
+  ];
+
+  return (
+    <div className="flex flex-col w-56 bg-sidebar border-r border-border">
+      <div className="flex h-14 items-center px-4 border-b border-border">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground">
+            C
+          </div>
+          <span className="font-semibold text-lg">Centsible</span>
+        </div>
+      </div>
+      <nav className="flex-1 p-2 space-y-1">
+        {navigation.map((item) => (
+          <Link
+            key={item.name}
+            href={item.href}
+            className={cn(
+              "flex items-center px-4 py-3 text-sm font-medium rounded-md",
+              item.current 
+                ? "bg-sidebar-selected text-primary" 
+                : "text-muted-foreground hover:text-foreground hover:bg-sidebar-hover"
+            )}
+          >
+            <item.icon
+              className={cn(
+                "mr-3 h-5 w-5",
+                item.current ? "text-primary" : "text-muted-foreground"
+              )}
+              aria-hidden="true"
+            />
+            {item.name}
+          </Link>
+        ))}
+      </nav>
+      {user && (
+        <div className="p-4 border-t border-border flex items-center">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-medium mr-3">
+            {user.username.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex flex-col text-sm">
+            <span className="font-medium">
+              {user.username}
+            </span>
+            <span className="text-xs text-muted-foreground">{user.username.toLowerCase()}@example.com</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
