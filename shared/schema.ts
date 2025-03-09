@@ -37,7 +37,8 @@ export const insertUserSchema = createInsertSchema(users, {
 });
 
 export const insertTransactionSchema = createInsertSchema(transactions, {
-  amount: z.number().min(0)
+  amount: z.number().min(0),
+  date: z.string().transform(val => new Date(val))
 }).omit({
   id: true,
   userId: true
