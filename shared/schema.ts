@@ -6,7 +6,8 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  balance: decimal("balance", { precision: 10, scale: 2 }).default("0").notNull()
+  balance: decimal("balance", { precision: 10, scale: 2 }).default("0").notNull(),
+  currency: text("currency").default("USD").notNull(),
 });
 
 export const transactions = pgTable("transactions", {
@@ -33,7 +34,8 @@ export const insertUserSchema = createInsertSchema(users, {
   balance: z.number().default(0)
 }).pick({
   username: true,
-  password: true
+  password: true,
+  currency: true
 });
 
 export const insertTransactionSchema = createInsertSchema(transactions, {
@@ -61,6 +63,7 @@ export type User = {
   username: string;
   password: string;
   balance: number;
+  currency: string;
 };
 export type Transaction = {
   id: number;

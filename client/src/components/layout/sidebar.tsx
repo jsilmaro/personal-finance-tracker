@@ -1,69 +1,60 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  LayoutDashboard,
-  Wallet,
-  LineChart,
-  PiggyBank,
-  Settings,
-  LogOut
-} from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+  IconHome,
+  IconWallet,
+  IconChartBar,
+  IconSettings,
+  IconTarget,
+  IconMenuDeep,
+  IconMenuOrder
+} from '@tabler/icons-react';
+import { useState } from "react";
 
 export default function Sidebar() {
   const [location] = useLocation();
-  const { logoutMutation } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
 
-  const navigation = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Wallet", href: "/wallet", icon: Wallet },
-    { name: "Analytics", href: "/analytics", icon: LineChart },
-    { name: "Savings", href: "/savings", icon: PiggyBank },
-    { name: "Settings", href: "/settings", icon: Settings },
+  const links = [
+    { href: "/dashboard", label: "Dashboard", icon: <IconHome /> },
+    { href: "/wallet", label: "Wallet", icon: <IconWallet /> },
+    { href: "/savings", label: "Savings", icon: <IconTarget /> },
+    { href: "/analytics", label: "Analytics", icon: <IconChartBar /> },
+    { href: "/settings", label: "Settings", icon: <IconSettings /> },
   ];
 
   return (
-    <div className="flex flex-col h-full border-r bg-card">
-      <div className="p-6">
-        <Link href="/dashboard">
-          <h1 className="text-2xl font-bold">Centsible</h1>
-        </Link>
-      </div>
-
-      <ScrollArea className="flex-1 px-3">
-        <nav className="flex flex-col gap-2">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "w-full justify-start gap-2",
-                    location === item.href && "bg-accent"
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.name}
-                </Button>
-              </Link>
-            );
-          })}
-        </nav>
-      </ScrollArea>
-
-      <div className="p-6 border-t">
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2"
-          onClick={() => logoutMutation.mutate()}
+    <div className={cn(
+      "bg-card h-screen p-4 border-r transition-all duration-300",
+      collapsed ? "w-20" : "w-64"
+    )}>
+      <div className="flex items-center justify-between mb-8">
+        {!collapsed && <h1 className="text-2xl font-bold">Centsible</h1>}
+        <button 
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-2 rounded-lg hover:bg-accent"
         >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </Button>
+          {collapsed ? <IconMenuDeep /> : <IconMenuOrder />}
+        </button>
       </div>
+
+      <nav className="space-y-1">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+          >
+            <a className={cn(
+              "flex items-center px-4 py-3 rounded-lg transition-colors hover:bg-accent",
+              collapsed ? "justify-center" : "",
+              location === link.href ? "bg-primary text-primary-foreground" : "bg-transparent"
+            )}>
+              <span className={collapsed ? "" : "mr-3"}>{link.icon}</span>
+              {!collapsed && <span>{link.label}</span>}
+            </a>
+          </Link>
+        ))}
+      </nav>
     </div>
   );
 }

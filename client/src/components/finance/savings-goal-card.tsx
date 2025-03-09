@@ -1,7 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { SavingsGoal } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
+import { getCurrencySymbol } from "@/lib/utils";
 
 interface SavingsGoalCardProps {
   goal: SavingsGoal;
@@ -9,7 +13,20 @@ interface SavingsGoalCardProps {
 }
 
 export default function SavingsGoalCard({ goal, onContribute }: SavingsGoalCardProps) {
+  const { user } = useAuth();
+  const [contributionAmount, setContributionAmount] = useState("10");
+  const [isContributing, setIsContributing] = useState(false);
   const progress = (goal.currentAmount / goal.targetAmount) * 100;
+  const currencySymbol = getCurrencySymbol(user?.currency || "USD");
+
+  const handleContribute = () => {
+    const amount = parseFloat(contributionAmount);
+    if (!isNaN(amount) && amount > 0 && onContribute) {
+      onContribute(amount);
+      setIsContributing(false);
+      setContributionAmount("10");
+    }
+  };
 
   return (
     <Card>
@@ -23,9 +40,9 @@ export default function SavingsGoalCard({ goal, onContribute }: SavingsGoalCardP
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          ${goal.currentAmount.toFixed(2)}
+          {currencySymbol}{goal.currentAmount.toFixed(2)}
           <span className="text-sm text-muted-foreground">
-            /${goal.targetAmount.toFixed(2)}
+            /{currencySymbol}{goal.targetAmount.toFixed(2)}
           </span>
         </div>
         <Progress
@@ -33,13 +50,38 @@ export default function SavingsGoalCard({ goal, onContribute }: SavingsGoalCardP
           className="h-2 mt-2"
         />
         {onContribute && !goal.completed && (
-          <Button
-            onClick={() => onContribute(10)}
-            variant="outline"
-            className="w-full mt-4"
-          >
-            Contribute
-          </Button>
+          <>
+            {!isContributing ? (
+              <Button
+                onClick={() => setIsContributing(true)}
+                variant="outline"
+                className="w-full mt-4"
+              >
+                Contribute
+              </Button>
+            ) : (
+              <div className="mt-4 space-y-2">
+                <div className="flex space-x-2">
+                  <Input
+                    type="number"
+                    value={contributionAmount}
+                    onChange={(e) => setContributionAmount(e.target.value)}
+                    placeholder="Amount"
+                    className="flex-1"
+                  />
+                  <Button onClick={handleContribute}>Add</Button>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={() => setIsContributing(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

@@ -83,6 +83,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User routes
+  app.get("/api/user", requireAuth, async (req: Request & { user?: any }, res, next) => {
+    try {
+      if (!req.user) return res.sendStatus(401);
+      res.json(req.user);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch("/api/user/settings", requireAuth, async (req: Request & { user?: any }, res, next) => {
+    try {
+      if (!req.user) return res.sendStatus(401);
+      const { currency } = req.body;
+      if (!currency) {
+        return res.status(400).json({ message: "Currency is required" });
+      }
+
+      const updatedUser = await storage.updateUserSettings(req.user.id, { currency });
+      res.json(updatedUser);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

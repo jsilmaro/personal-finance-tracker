@@ -87,3 +87,100 @@ export default function SettingsPage() {
     </div>
   );
 }
+import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import Header from "@/components/layout/header";
+import Sidebar from "@/components/layout/sidebar";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { apiRequest } from "@/lib/queryClient";
+import { Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
+
+export default function SettingsPage() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [selectedCurrency, setSelectedCurrency] = useState(user?.currency || "USD");
+
+  const currencies = [
+    { value: "USD", label: "US Dollar ($)" },
+    { value: "EUR", label: "Euro (€)" },
+    { value: "GBP", label: "British Pound (£)" },
+    { value: "JPY", label: "Japanese Yen (¥)" },
+    { value: "CAD", label: "Canadian Dollar (CA$)" },
+    { value: "AUD", label: "Australian Dollar (A$)" },
+    { value: "CNY", label: "Chinese Yuan (¥)" },
+  ];
+
+  const updateCurrencyMutation = useMutation({
+    mutationFn: async (currency: string) => {
+      const res = await apiRequest("PATCH", "/api/user/settings", { currency });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      toast({
+        title: "Currency Updated",
+        description: "Your currency preference has been updated.",
+      });
+    },
+  });
+
+  const handleUpdateCurrency = () => {
+    updateCurrencyMutation.mutate(selectedCurrency);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1">
+          <Header />
+          <main className="p-6">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold">Settings</h1>
+              <p className="text-muted-foreground">Manage your account preferences.</p>
+            </div>
+
+            <div className="grid gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Currency Preferences</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Default Currency</label>
+                    <Select
+                      value={selectedCurrency}
+                      onValueChange={setSelectedCurrency}
+                    >
+                      <SelectTrigger className="w-full md:w-[240px]">
+                        <SelectValue placeholder="Select a currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {currencies.map((currency) => (
+                          <SelectItem key={currency.value} value={currency.value}>
+                            {currency.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button 
+                    onClick={handleUpdateCurrency} 
+                    disabled={updateCurrencyMutation.isPending}
+                  >
+                    {updateCurrencyMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Currency Preference
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
