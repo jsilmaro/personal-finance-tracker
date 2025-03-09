@@ -10,6 +10,7 @@ import {
   IconMenuOrder
 } from '@tabler/icons-react';
 import { useState } from "react";
+import UserProfile from "./user-profile";
 
 export default function Sidebar() {
   const [location] = useLocation();
@@ -25,10 +26,10 @@ export default function Sidebar() {
 
   return (
     <div className={cn(
-      "bg-card h-screen p-4 border-r transition-all duration-300",
+      "bg-card h-screen flex flex-col border-r transition-all duration-300",
       collapsed ? "w-20" : "w-64"
     )}>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between p-4">
         {!collapsed && <h1 className="text-2xl font-bold">Centsible</h1>}
         <button 
           onClick={() => setCollapsed(!collapsed)}
@@ -38,7 +39,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      <nav className="space-y-1">
+      <nav className="flex-1 space-y-1 p-4">
         {links.map((link) => (
           <Link
             key={link.href}
@@ -55,6 +56,11 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
+
+      {/* User Profile in Footer */}
+      <div className="mt-auto border-t">
+        <UserProfile />
+      </div>
     </div>
   );
 }

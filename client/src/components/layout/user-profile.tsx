@@ -17,9 +17,20 @@ export default function UserProfile() {
   const [, navigate] = useLocation();
   const [open, setOpen] = useState(false);
 
+  // Mock data for multiple accounts - replace with actual data later
+  const accounts = [
+    { id: 1, username: "personal", email: "personal@example.com" },
+    { id: 2, username: "business", email: "business@example.com" },
+  ];
+
   const handleLogout = async () => {
     await logoutMutation.mutateAsync();
     navigate("/auth");
+  };
+
+  const handleSwitchAccount = (accountId: number) => {
+    // TODO: Implement account switching logic
+    console.log(`Switching to account ${accountId}`);
   };
 
   if (!user) return null;
@@ -45,6 +56,24 @@ export default function UserProfile() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
+          {accounts.map((account) => (
+            <DropdownMenuItem 
+              key={account.id}
+              onClick={() => handleSwitchAccount(account.id)}
+              className="gap-2"
+            >
+              <Avatar className="h-6 w-6">
+                <AvatarFallback>
+                  {account.username.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <p className="text-sm">{account.username}</p>
+                <p className="text-xs text-muted-foreground">{account.email}</p>
+              </div>
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
             <UserCircle className="h-4 w-4" />
             Profile
