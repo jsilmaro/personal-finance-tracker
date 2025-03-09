@@ -27,8 +27,13 @@ export default function ExpenseDialog() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
+  const formSchema = insertTransactionSchema.extend({
+    // Override the date field to accept string in yyyy-MM-dd format
+    date: z.string(),
+  });
+
   const form = useForm<FormData>({
-    resolver: zodResolver(insertTransactionSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       amount: 0,
       category: "Other",
@@ -54,7 +59,8 @@ export default function ExpenseDialog() {
     expenseMutation.mutate({
       ...values,
       amount: Number(values.amount),
-      date: new Date(values.date).toISOString().split('T')[0],
+      // Pass the date string directly as it's already in yyyy-MM-dd format
+      date: values.date,
     });
   };
 
