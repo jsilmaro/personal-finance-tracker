@@ -39,9 +39,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[linear-gradient(to_top,#a7a6cb_0%,#8989ba_52%,#8989ba_100%)]">
       <div className="flex h-screen">
-        <div className="w-64 flex-none">
-          <Sidebar />
-        </div>
+        <Sidebar />
         
         <div className="flex-1 flex flex-col">
           <Header />

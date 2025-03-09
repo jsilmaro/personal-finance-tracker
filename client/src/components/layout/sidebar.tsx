@@ -44,22 +44,21 @@ export default function Sidebar() {
           <Link
             key={link.href}
             href={link.href}
-          >
-            <a className={cn(
+            className={cn(
               "flex items-center px-4 py-3 rounded-lg transition-colors hover:bg-accent",
               collapsed ? "justify-center" : "",
               location === link.href ? "bg-primary text-primary-foreground" : "bg-transparent"
-            )}>
-              <span className={collapsed ? "" : "mr-3"}>{link.icon}</span>
-              {!collapsed && <span>{link.label}</span>}
-            </a>
+            )}
+          >
+            <span className={collapsed ? "" : "mr-3"}>{link.icon}</span>
+            {!collapsed && <span>{link.label}</span>}
           </Link>
         ))}
       </nav>
 
       {/* User Profile in Footer */}
       <div className="mt-auto border-t">
-        <UserProfile />
+        <UserProfile collapsed={collapsed} />
       </div>
     </div>
   );
