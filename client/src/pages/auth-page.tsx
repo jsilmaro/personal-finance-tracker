@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -31,10 +31,11 @@ export default function AuthPage() {
     },
   });
 
-  if (user) {
-    navigate("/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (isLogin) {
@@ -57,7 +58,7 @@ export default function AuthPage() {
           <h2 className="text-3xl font-bold mb-6">
             {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
-          
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -73,7 +74,7 @@ export default function AuthPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"

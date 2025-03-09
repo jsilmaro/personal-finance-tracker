@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -69,7 +69,10 @@ export default function ExpenseDialog() {
       <DialogTrigger asChild>
         <Button variant="destructive">Add Expense</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md" aria-describedby="expense-dialog-description">
+        <DialogDescription id="expense-dialog-description" className="sr-only">
+          Add or edit an expense
+        </DialogDescription>
         <DialogHeader>
           <DialogTitle>Add New Expense</DialogTitle>
         </DialogHeader>

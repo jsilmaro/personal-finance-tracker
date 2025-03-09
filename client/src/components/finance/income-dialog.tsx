@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,10 @@ export default function IncomeDialog() {
       <DialogTrigger asChild>
         <Button>Add Income</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md" aria-describedby="income-dialog-description">
+        <DialogDescription id="income-dialog-description" className="sr-only">
+          Add or edit income
+        </DialogDescription>
         <DialogHeader>
           <DialogTitle>Add New Income</DialogTitle>
         </DialogHeader>
