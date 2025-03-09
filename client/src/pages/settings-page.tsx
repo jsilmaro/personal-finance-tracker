@@ -29,6 +29,7 @@ export default function SettingsPage() {
     { value: "CAD", label: "Canadian Dollar (CA$)" },
     { value: "AUD", label: "Australian Dollar (A$)" },
     { value: "CNY", label: "Chinese Yuan (¥)" },
+    { value: "PHP", label: "Philippine Peso (₱)" },
   ];
 
   const updateCurrencyMutation = useMutation({

@@ -14,6 +14,7 @@ export function getCurrencySymbol(currencyCode: string): string {
     CAD: "CA$",
     AUD: "A$",
     CNY: "¥",
+    PHP: "₱",
   };
 
   return currencySymbols[currencyCode] || "$";
