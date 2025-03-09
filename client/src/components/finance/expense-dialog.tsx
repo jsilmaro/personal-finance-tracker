@@ -12,6 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { z } from "zod";
 import { getCurrencySymbol } from "@/lib/utils"; // Added import
+import { useAuth } from "@/hooks/use-auth"; // Added import
 
 
 const expenseCategories = [

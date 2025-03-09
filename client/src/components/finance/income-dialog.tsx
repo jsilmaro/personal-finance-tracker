@@ -11,7 +11,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { z } from "zod";
-import { getCurrencySymbol } from "@/lib/utils"; // Added import
+import { getCurrencySymbol } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth"; // Added import
 
 const incomeCategories = [
   "Salary",
@@ -87,7 +88,7 @@ export default function IncomeDialog() {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount ({getCurrencySymbol(user?.currency || "USD")})</FormLabel> {/* Updated Label */}
+                  <FormLabel>Amount ({getCurrencySymbol(user?.currency || "USD")})</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
