@@ -54,13 +54,16 @@ export default function LandingPage() {
           
           {/* Right Column - Dashboard Preview */}
           <div className="rounded-xl bg-card/50 backdrop-blur-sm p-6 shadow-lg">
-            <div className="aspect-[16/9] bg-muted rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold mb-2">Dashboard Preview</h3>
-                <p className="text-muted-foreground px-8">
-                  Visualize your finances with intuitive charts and detailed breakdowns.
-                </p>
-              </div>
+            <div className="aspect-[16/9] bg-muted rounded-lg overflow-hidden shadow-lg">
+              <img 
+                src="/dashboard-preview.png" 
+                alt="Dashboard Preview" 
+                className="w-full h-full object-cover object-center"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80";
+                }}
+              />
             </div>
           </div>
         </div>
