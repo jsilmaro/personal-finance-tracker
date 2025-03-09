@@ -14,10 +14,25 @@ import BarChart from "@/components/charts/bar-chart";
 import PieChart from "@/components/charts/pie-chart";
 import SavingsGoalCard from "@/components/finance/savings-goal-card";
 
+const getCurrencySymbol = (currencyCode: string): string => {
+  switch (currencyCode.toUpperCase()) {
+    case "USD":
+      return "$";
+    case "EUR":
+      return "€";
+    case "GBP":
+      return "£";
+    // Add more currencies as needed
+    default:
+      return ""; // Or handle unsupported currencies appropriately
+  }
+};
+
+
 export default function WalletPage() {
   const { user } = useAuth();
   const [timeframe, setTimeframe] = useState("30");
-  
+
   const { data: transactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
     queryKey: ["/api/transactions"],
   });
@@ -49,6 +64,8 @@ export default function WalletPage() {
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
   const totalSaved = totalIncome - totalExpenses;
+  const totalBalance = user?.balance || 0; // Added to handle potential null user.balance
+
 
   // Prepare data for balance over time chart
   const dailyBalances = filteredTransactions?.reduce((acc, t) => {
@@ -80,10 +97,10 @@ export default function WalletPage() {
         <div className="w-64 flex-none">
           <Sidebar />
         </div>
-        
+
         <div className="flex-1 flex flex-col">
           <Header />
-          
+
           <main className="flex-1 overflow-y-auto p-6">
             <div className="flex gap-6">
               <div className="flex-1 space-y-6">
@@ -106,7 +123,9 @@ export default function WalletPage() {
                       <CardTitle className="text-sm font-medium">Balance</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">${user?.balance.toFixed(2)}</div>
+                      <div className="text-2xl font-bold">
+                        {getCurrencySymbol(user?.currency || "USD")}{totalBalance.toFixed(2)}
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -115,7 +134,9 @@ export default function WalletPage() {
                       <CardTitle className="text-sm font-medium">Income</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-primary">${totalIncome.toFixed(2)}</div>
+                      <div className="text-2xl font-bold text-primary">
+                        {getCurrencySymbol(user?.currency || "USD")}{totalIncome.toFixed(2)}
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -124,7 +145,9 @@ export default function WalletPage() {
                       <CardTitle className="text-sm font-medium">Expenses</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-destructive">${totalExpenses.toFixed(2)}</div>
+                      <div className="text-2xl font-bold text-destructive">
+                        {getCurrencySymbol(user?.currency || "USD")}{totalExpenses.toFixed(2)}
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -133,7 +156,9 @@ export default function WalletPage() {
                       <CardTitle className="text-sm font-medium">Saved</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">${totalSaved.toFixed(2)}</div>
+                      <div className="text-2xl font-bold">
+                        {getCurrencySymbol(user?.currency || "USD")}{totalSaved.toFixed(2)}
+                      </div>
                     </CardContent>
                   </Card>
                 </div>

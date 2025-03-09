@@ -11,6 +11,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { z } from "zod";
+import { getCurrencySymbol } from "@/lib/utils"; // Added import
+
 
 const expenseCategories = [
   "Food",
@@ -26,6 +28,8 @@ type FormData = z.infer<typeof insertTransactionSchema>;
 export default function ExpenseDialog() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  // Placeholder for user data -  Replace with actual user data fetching mechanism
+  const user = { currency: "USD" }; 
 
   const formSchema = insertTransactionSchema.extend({
     // Override the date field to accept string in yyyy-MM-dd format
@@ -84,7 +88,7 @@ export default function ExpenseDialog() {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Amount ({getCurrencySymbol(user?.currency || "USD")})</FormLabel> {/* Updated Label */}
                   <FormControl>
                     <Input 
                       type="number" 

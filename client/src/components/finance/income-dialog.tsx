@@ -11,6 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { z } from "zod";
+import { getCurrencySymbol } from "@/lib/utils"; // Added import
 
 const incomeCategories = [
   "Salary",
@@ -25,6 +26,9 @@ type FormData = z.infer<typeof insertTransactionSchema>;
 export default function IncomeDialog() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  // Assuming useAuth hook provides user object with currency property
+  const { data: user } = useAuth();
+
 
   const formSchema = insertTransactionSchema.extend({
     // Override the date field to accept string in yyyy-MM-dd format
@@ -83,7 +87,7 @@ export default function IncomeDialog() {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Amount ({getCurrencySymbol(user?.currency || "USD")})</FormLabel> {/* Updated Label */}
                   <FormControl>
                     <Input 
                       type="number" 

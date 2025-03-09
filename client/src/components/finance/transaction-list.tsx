@@ -1,7 +1,16 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Transaction } from "@shared/schema";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { useAuth } from "@/hooks/use-auth";
+import { getCurrencySymbol } from "@/lib/utils";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -9,10 +18,13 @@ interface TransactionListProps {
 }
 
 export default function TransactionList({ transactions, filter = "ALL" }: TransactionListProps) {
-  const filteredTransactions = transactions.filter((tx) => {
+  const { user } = useAuth();
+  const currencySymbol = getCurrencySymbol(user?.currency || "USD");
+
+  const filteredTransactions = transactions?.filter((t) => {
     if (filter === "ALL") return true;
-    return tx.type === filter;
-  });
+    return t.type === filter;
+  }) || [];
 
   return (
     <Table>
@@ -34,7 +46,7 @@ export default function TransactionList({ transactions, filter = "ALL" }: Transa
             <TableCell>{transaction.description}</TableCell>
             <TableCell>{transaction.category}</TableCell>
             <TableCell>
-              ${transaction.amount.toFixed(2)}
+              {transaction.type === "EXPENSE" ? "-" : "+"}{currencySymbol}{Number(transaction.amount).toFixed(2)}
             </TableCell>
             <TableCell>
               <Badge variant={transaction.type === "EXPENSE" ? "destructive" : "default"}>

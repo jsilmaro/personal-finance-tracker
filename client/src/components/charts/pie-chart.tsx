@@ -1,5 +1,7 @@
 import { ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
+import { getCurrencySymbol } from "@/lib/utils";
 
 interface PieChartProps {
   data: Array<{
@@ -12,6 +14,8 @@ interface PieChartProps {
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 export default function PieChart({ data, title }: PieChartProps) {
+  const { user } = useAuth();
+  const currencySymbol = getCurrencySymbol(user?.currency || "USD");
   return (
     <Card>
       <CardHeader>
@@ -39,7 +43,7 @@ export default function PieChart({ data, title }: PieChartProps) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                formatter={(value: number) => [`${currencySymbol}${Number(value).toFixed(2)}`, ""]}
               />
               <Legend />
             </RechartsPieChart>

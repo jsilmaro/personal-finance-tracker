@@ -1,5 +1,7 @@
 import { ResponsiveContainer, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
+import { getCurrencySymbol } from "@/lib/utils";
 
 interface BarChartProps {
   data: Array<{
@@ -10,6 +12,9 @@ interface BarChartProps {
 }
 
 export default function BarChart({ data, title }: BarChartProps) {
+  const { user } = useAuth();
+  const currencySymbol = getCurrencySymbol(user?.currency || "USD");
+
   return (
     <Card>
       <CardHeader>
@@ -23,7 +28,7 @@ export default function BarChart({ data, title }: BarChartProps) {
               <XAxis dataKey="name" />
               <YAxis />
               <Tooltip
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Amount']}
+                formatter={(value: number) => [`${currencySymbol}${value.toFixed(2)}`, 'Amount']}
               />
               <Bar
                 dataKey="value"

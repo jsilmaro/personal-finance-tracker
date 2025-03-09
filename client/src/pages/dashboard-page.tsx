@@ -12,6 +12,19 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 
+// Assumed to be defined elsewhere in the application
+const getCurrencySymbol = (currencyCode: string): string => {
+  // Implement logic to retrieve currency symbol based on currency code.
+  // This is a placeholder, replace with your actual implementation.
+  const currencySymbols: { [key: string]: string } = {
+    "USD": "$",
+    "EUR": "€",
+    "GBP": "£",
+    // Add other currency symbols as needed.
+  };
+  return currencySymbols[currencyCode] || currencyCode;
+};
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [transactionFilter, setTransactionFilter] = useState<"ALL" | "EXPENSE" | "INCOME">("ALL");
@@ -36,14 +49,16 @@ export default function DashboardPage() {
     ?.filter(t => t.type === "INCOME")
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
+  const currencySymbol = getCurrencySymbol(user?.currency || "USD");
+
   return (
     <div className="min-h-screen bg-[linear-gradient(to_top,#a7a6cb_0%,#8989ba_52%,#8989ba_100%)]">
       <div className="flex h-screen">
         <Sidebar />
-        
+
         <div className="flex-1 flex flex-col">
           <Header />
-          
+
           <main className="flex-1 overflow-y-auto p-6">
             <div className="max-w-7xl mx-auto space-y-6">
               <div className="grid gap-6 md:grid-cols-3">
@@ -55,7 +70,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      ${user?.balance.toFixed(2)}
+                      {currencySymbol}{(totalIncome - totalExpenses).toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
@@ -68,7 +83,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-destructive">
-                      ${totalExpenses.toFixed(2)}
+                      {currencySymbol}{totalExpenses.toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
@@ -81,7 +96,7 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-primary">
-                      ${totalIncome.toFixed(2)}
+                      {currencySymbol}{totalIncome.toFixed(2)}
                     </div>
                   </CardContent>
                 </Card>
