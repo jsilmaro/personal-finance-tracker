@@ -14,15 +14,9 @@ export default function LandingPage() {
         <header className="flex justify-between items-center mb-16">
           <h1 className="text-3xl font-bold text-foreground">Centsible</h1>
           <nav>
-            {user ? (
-              <Link href="/dashboard">
-                <Button variant="outline">Go to Dashboard</Button>
-              </Link>
-            ) : (
-              <Link href="/auth">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-            )}
+            <Link href="/auth">
+              <Button variant="outline">Sign In</Button>
+            </Link>
           </nav>
         </header>
 
