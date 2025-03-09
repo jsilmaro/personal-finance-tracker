@@ -1,103 +1,69 @@
-import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
-import { logout } from "@/hooks/use-auth";
-import { Link } from "wouter";
-import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarGroup, 
-  SidebarGroupLabel, 
-  SidebarMenu, 
-  SidebarMenuItem, 
-  SidebarMenuButton, 
-  SidebarTrigger 
-} from "@/components/ui/sidebar";
-import { 
-  HomeIcon, 
-  LineChart, 
-  BarChart4, 
-  PiggyBank, 
-  CreditCard, 
+import { Link, useLocation } from "wouter";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  LayoutDashboard,
+  Wallet,
+  LineChart,
+  PiggyBank,
   Settings,
-  LogOut 
+  LogOut
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
-export default function AppSidebar() {
+export default function Sidebar() {
   const [location] = useLocation();
-  const { user, logout } = useAuth();
+  const { logoutMutation } = useAuth();
 
-  if (!user) return null;
+  const navigation = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Wallet", href: "/wallet", icon: Wallet },
+    { name: "Analytics", href: "/analytics", icon: LineChart },
+    { name: "Savings", href: "/savings", icon: PiggyBank },
+    { name: "Settings", href: "/settings", icon: Settings },
+  ];
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={location === '/dashboard'}>
-                <Link href="/dashboard">
-                  <HomeIcon />
-                  <span>Overview</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={location === '/transactions'}>
-                <Link href="/transactions">
-                  <BarChart4 />
-                  <span>Transactions</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={location === '/analytics'}>
-                <Link href="/analytics">
-                  <LineChart />
-                  <span>Analytics</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={location === '/budget'}>
-                <Link href="/budget">
-                  <PiggyBank />
-                  <span>Budget</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={location === '/accounts'}>
-                <Link href="/accounts">
-                  <CreditCard />
-                  <span>Accounts</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Settings</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={location === '/settings'}>
-                <Link href="/settings">
-                  <Settings />
-                  <span>Settings</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild onClick={() => user && logout()}>
-                <Link href="/auth">
-                  <LogOut />
-                  <span>Logout</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+    <div className="flex flex-col h-full border-r bg-card">
+      <div className="p-6">
+        <Link href="/dashboard">
+          <h1 className="text-2xl font-bold">Centsible</h1>
+        </Link>
+      </div>
+
+      <ScrollArea className="flex-1 px-3">
+        <nav className="flex flex-col gap-2">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start gap-2",
+                    location === item.href && "bg-accent"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.name}
+                </Button>
+              </Link>
+            );
+          })}
+        </nav>
+      </ScrollArea>
+
+      <div className="p-6 border-t">
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2"
+          onClick={() => logoutMutation.mutate()}
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+      </div>
+    </div>
   );
 }
