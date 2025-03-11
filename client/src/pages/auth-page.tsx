@@ -38,16 +38,21 @@ export default function AuthPage() {
   }, [user, navigate]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (isLogin) {
-      await loginMutation.mutateAsync({
-        username: values.username,
-        password: values.password,
-      });
-    } else {
-      await registerMutation.mutateAsync({
-        username: values.username,
-        password: values.password,
-      });
+    try {
+      if (isLogin) {
+        await loginMutation.mutateAsync({
+          username: values.username,
+          password: values.password,
+        });
+      } else {
+        await registerMutation.mutateAsync({
+          username: values.username,
+          password: values.password,
+        });
+      }
+    } catch (err) {
+      console.error("Authentication error:", err);
+      // Don't rethrow to prevent unhandled promise rejection
     }
   };
 

@@ -35,7 +35,7 @@ function App() {
     <ThemeProvider defaultTheme="system" storageKey="centsible-theme">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <div className="min-h-screen bg-background text-foreground">
+          <div className="min-h-screen bg-background text-foreground antialiased">
             <Router />
             <Toaster />
           </div>
