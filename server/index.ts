@@ -63,18 +63,37 @@ app.use((req, res, next) => {
       res.status(status).json({ message });
     });
 
+    // Cleanup function to ensure proper server shutdown
+    const cleanup = () => {
+      log('Shutting down server...');
+      server.close(() => {
+        log('Server closed');
+        process.exit(0);
+      });
+    };
+
+    // Handle process termination
+    process.on('SIGTERM', cleanup);
+    process.on('SIGINT', cleanup);
+
+    // Setup middleware based on environment
     if (process.env.NODE_ENV !== 'production') {
-      log('Setting up Vite middleware...');
+      log('Setting up Vite development middleware...');
       await setupVite(app, server);
-      log('Vite middleware setup complete.');
+      log('Vite middleware setup complete');
     } else {
-      log('Using static file serving...');
+      log('Setting up static file serving...');
       serveStatic(app);
+      log('Static file serving setup complete');
     }
 
+    // Start server
     server.listen(5000, '0.0.0.0', () => {
       log(`Server running at http://0.0.0.0:5000`);
     }).on('error', (err: any) => {
+      if (err.code === 'EADDRINUSE') {
+        log('Port 5000 is already in use. Please ensure no other instance is running.');
+      }
       console.error('Server startup error:', err);
       process.exit(1);
     });
