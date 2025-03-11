@@ -12,7 +12,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { z } from "zod";
 import { getCurrencySymbol } from "@/lib/utils";
-import { useAuth } from "@/hooks/use-auth"; // Added import
+import { useAuth } from "@/hooks/use-auth";
 
 const incomeCategories = [
   "Salary",
@@ -27,13 +27,10 @@ type FormData = z.infer<typeof insertTransactionSchema>;
 export default function IncomeDialog() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
-  // Assuming useAuth hook provides user object with currency property
-  const { data: user } = useAuth();
-
+  const { user } = useAuth();
 
   const formSchema = insertTransactionSchema.extend({
-    // Override the date field to accept string in yyyy-MM-dd format
-    date: z.string(),
+    date: z.coerce.date(),
   });
 
   const form = useForm<FormData>({
@@ -42,14 +39,18 @@ export default function IncomeDialog() {
       amount: 0,
       category: "Other",
       type: "INCOME",
-      date: format(new Date(), "yyyy-MM-dd"),
+      date: new Date(),
       description: "",
     },
   });
 
   const incomeMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return apiRequest("POST", "/api/transactions", data);
+      const payload = {
+        ...data,
+        date: format(data.date, 'yyyy-MM-dd'),
+      };
+      return apiRequest("/api/transactions", "POST", payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
@@ -60,12 +61,7 @@ export default function IncomeDialog() {
   });
 
   const onSubmit = (values: FormData) => {
-    incomeMutation.mutate({
-      ...values,
-      amount: Number(values.amount),
-      // Pass the date string directly as it's already in yyyy-MM-dd format
-      date: values.date,
-    });
+    incomeMutation.mutate(values);
   };
 
   return (
@@ -88,7 +84,7 @@ export default function IncomeDialog() {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount ({getCurrencySymbol(user?.currency || "USD")})</FormLabel>
+                  <FormLabel>Amount ({getCurrencySymbol(user?.currency || "PHP")})</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
@@ -140,7 +136,8 @@ export default function IncomeDialog() {
                     <Input 
                       type="date" 
                       {...field}
-                      value={field.value}
+                      value={format(field.value, 'yyyy-MM-dd')}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -155,7 +152,7 @@ export default function IncomeDialog() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

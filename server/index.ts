@@ -82,41 +82,47 @@ app.use((req, res, next) => {
       res.status(status).json({ message });
     });
 
-    if (app.get("env") === "development") {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Setting up Vite middleware...');
       await setupVite(app, server);
+      console.log('Vite middleware setup complete.');
     } else {
+      console.log('Using static file serving...');
       serveStatic(app);
     }
 
     // Try primary port, fall back to alternative if needed
-    const tryPort = (port: number): Promise<number> => {
-      return new Promise((resolve, reject) => {
-        server.listen({
-          port,
-          host: "0.0.0.0",
-          reusePort: true,
-        }, () => {
-          log(`Server running at http://0.0.0.0:${port}`);
-          resolve(port);
-        }).on('error', (err: any) => {
-          if (err.code === 'EADDRINUSE') {
-            log(`Port ${port} is busy, trying alternative port`);
-            resolve(0); // Signal to try another port
-          } else {
-            reject(err);
-          }
+    const tryPort = async (port: number): Promise<void> => {
+      try {
+        await new Promise<void>((resolve, reject) => {
+          server.listen({
+            port,
+            host: "0.0.0.0",
+          }, () => {
+            log(`Server running at http://0.0.0.0:${port}`);
+            resolve();
+          }).on('error', (err: any) => {
+            if (err.code === 'EADDRINUSE' && port === 5000) {
+              log(`Port ${port} is busy, trying to kill existing process...`);
+              // Try to force close the server to free up the port
+              server.close(() => {
+                setTimeout(() => {
+                  tryPort(port).then(resolve).catch(reject);
+                }, 1000);
+              });
+            } else {
+              reject(err);
+            }
+          });
         });
-      });
-    };
-    
-    // Try port 5000 first, then fall back to random port if needed
-    const port = await tryPort(5000) || await tryPort(0);
-    if (port === 0) {
-      const address = server.address();
-      if (address && typeof address !== 'string') {
-        log(`Server running at http://0.0.0.0:${address.port}`);
+      } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
       }
-    }
+    };
+
+    await tryPort(5000);
+
   } catch (error) {
     console.error('Server startup error:', error);
     process.exit(1);

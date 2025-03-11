@@ -19,9 +19,10 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedCurrency, setSelectedCurrency] = useState(user?.currency || "USD");
+  const [selectedCurrency, setSelectedCurrency] = useState(user?.currency || "PHP");
 
   const currencies = [
+    { value: "PHP", label: "Philippine Peso (₱)" },
     { value: "USD", label: "US Dollar ($)" },
     { value: "EUR", label: "Euro (€)" },
     { value: "GBP", label: "British Pound (£)" },
@@ -29,7 +30,6 @@ export default function SettingsPage() {
     { value: "CAD", label: "Canadian Dollar (CA$)" },
     { value: "AUD", label: "Australian Dollar (A$)" },
     { value: "CNY", label: "Chinese Yuan (¥)" },
-    { value: "PHP", label: "Philippine Peso (₱)" },
   ];
 
   const updateCurrencyMutation = useMutation({
@@ -39,6 +39,8 @@ export default function SettingsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // Also invalidate transactions to refresh the currency display
+      queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
       toast({
         title: "Currency Updated",
         description: "Your currency preference has been updated.",
@@ -53,9 +55,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-[linear-gradient(to_top,#a7a6cb_0%,#8989ba_52%,#8989ba_100%)]">
       <div className="flex h-screen">
-        <div className="w-64 flex-none">
-          <Sidebar />
-        </div>
+        <Sidebar />
 
         <div className="flex-1 flex flex-col">
           <Header />

@@ -14,13 +14,15 @@ import { Loader2 } from "lucide-react";
 
 // Assumed to be defined elsewhere in the application
 const getCurrencySymbol = (currencyCode: string): string => {
-  // Implement logic to retrieve currency symbol based on currency code.
-  // This is a placeholder, replace with your actual implementation.
   const currencySymbols: { [key: string]: string } = {
+    "PHP": "₱",
     "USD": "$",
     "EUR": "€",
     "GBP": "£",
-    // Add other currency symbols as needed.
+    "JPY": "¥",
+    "CAD": "CA$",
+    "AUD": "A$",
+    "CNY": "¥",
   };
   return currencySymbols[currencyCode] || currencyCode;
 };
@@ -49,7 +51,7 @@ export default function DashboardPage() {
     ?.filter(t => t.type === "INCOME")
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
-  const currencySymbol = getCurrencySymbol(user?.currency || "USD");
+  const currencySymbol = getCurrencySymbol(user?.currency || "PHP");
 
   return (
     <div className="min-h-screen bg-[linear-gradient(to_top,#a7a6cb_0%,#8989ba_52%,#8989ba_100%)]">

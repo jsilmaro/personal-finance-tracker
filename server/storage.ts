@@ -8,8 +8,8 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUserSettings(userId: number, settings: { currency: string }): Promise<User | undefined>; // Added method
-
+  updateUserSettings(userId: number, settings: { currency: string }): Promise<User | undefined>;
+  
   // Transaction methods
   getTransactions(userId: number): Promise<Transaction[]>;
   createTransaction(userId: number, transaction: InsertTransaction): Promise<Transaction>;
@@ -52,7 +52,7 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentId++;
-    const user: User = { ...insertUser, id, balance: 0, currency: 'USD' }; // Added default currency
+    const user: User = { ...insertUser, id, balance: 0, currency: 'PHP' }; 
     this.users.set(id, user);
     return user;
   }

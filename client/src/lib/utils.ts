@@ -7,6 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getCurrencySymbol(currencyCode: string): string {
   const currencySymbols: Record<string, string> = {
+    PHP: "₱",
     USD: "$",
     EUR: "€",
     GBP: "£",
@@ -14,8 +15,7 @@ export function getCurrencySymbol(currencyCode: string): string {
     CAD: "CA$",
     AUD: "A$",
     CNY: "¥",
-    PHP: "₱",
   };
 
-  return currencySymbols[currencyCode] || "$";
+  return currencySymbols[currencyCode] || currencyCode;
 }
