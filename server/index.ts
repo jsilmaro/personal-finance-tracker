@@ -19,7 +19,7 @@ const app = express();
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? process.env.CLIENT_URL 
-    : 'http://localhost:5000',
+    : 'http://0.0.0.0:5000',
   credentials: true
 }));
 
@@ -39,7 +39,7 @@ app.use(session({
   }
 }));
 
-// Request logging middleware
+// Simple request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   res.on("finish", () => {
@@ -72,28 +72,12 @@ app.use((req, res, next) => {
       serveStatic(app);
     }
 
-    const MAX_RETRIES = 3;
-    const RETRY_DELAY = 1000;
-    let retries = 0;
-
-    const startServer = async () => {
-      try {
-        server.listen(5000, '0.0.0.0', () => {
-          log(`Server running at http://0.0.0.0:5000`);
-        });
-      } catch (error: any) {
-        if (error.code === 'EADDRINUSE' && retries < MAX_RETRIES) {
-          log(`Port 5000 is in use, retrying in ${RETRY_DELAY}ms...`);
-          retries++;
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-          await startServer();
-        } else {
-          throw error;
-        }
-      }
-    };
-
-    await startServer();
+    server.listen(5000, '0.0.0.0', () => {
+      log(`Server running at http://0.0.0.0:5000`);
+    }).on('error', (err: any) => {
+      console.error('Server startup error:', err);
+      process.exit(1);
+    });
 
   } catch (error) {
     console.error('Server startup error:', error);

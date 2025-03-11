@@ -12,11 +12,14 @@ import {
 import { LogOut, Settings, UserCircle, ChevronUp } from "lucide-react";
 import { useLocation } from "wouter";
 
-export default function UserProfile() {
+interface UserProfileProps {
+  collapsed: boolean;
+}
+
+export default function UserProfile({ collapsed }: UserProfileProps) {
   const { user, logoutMutation } = useAuth();
   const [, navigate] = useLocation();
   const [open, setOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false); // Added collapsed state
 
   // Mock data for multiple accounts - replace with actual data later
   const accounts = [
@@ -49,14 +52,15 @@ export default function UserProfile() {
                 {user.username.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {/* Conditionally render user details based on collapsed state */}
             {!collapsed && (
               <div className="flex-1 text-left">
                 <p className="text-sm font-medium leading-none">{user.username}</p>
                 <p className="text-xs text-muted-foreground">View profile</p>
               </div>
             )}
-            <ChevronUp className={`h-4 w-4 transition-transform ${open ? "rotate-0" : "rotate-180"}`} />
+            <ChevronUp 
+              className={`h-4 w-4 transition-transform ${open ? "rotate-0" : "rotate-180"} ${collapsed ? "ml-0" : ""}`} 
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">

@@ -57,9 +57,7 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile in Footer */}
-      <div className="mt-auto border-t">
-        <UserProfile collapsed={collapsed} />
-      </div>
+      <UserProfile collapsed={collapsed} />
     </div>
   );
 }
