@@ -42,31 +42,12 @@ app.use(session({
 // Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 120) {
-        logLine = logLine.slice(0, 119) + "…";
-      }
-
-      log(logLine);
+    if (req.path.startsWith("/api")) {
+      log(`${req.method} ${req.path} ${res.statusCode} in ${duration}ms`);
     }
   });
-
   next();
 });
 
@@ -83,45 +64,36 @@ app.use((req, res, next) => {
     });
 
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Setting up Vite middleware...');
+      log('Setting up Vite middleware...');
       await setupVite(app, server);
-      console.log('Vite middleware setup complete.');
+      log('Vite middleware setup complete.');
     } else {
-      console.log('Using static file serving...');
+      log('Using static file serving...');
       serveStatic(app);
     }
 
-    // Try primary port, fall back to alternative if needed
-    const tryPort = async (port: number): Promise<void> => {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000;
+    let retries = 0;
+
+    const startServer = async () => {
       try {
-        await new Promise<void>((resolve, reject) => {
-          server.listen({
-            port,
-            host: "0.0.0.0",
-          }, () => {
-            log(`Server running at http://0.0.0.0:${port}`);
-            resolve();
-          }).on('error', (err: any) => {
-            if (err.code === 'EADDRINUSE' && port === 5000) {
-              log(`Port ${port} is busy, trying to kill existing process...`);
-              // Try to force close the server to free up the port
-              server.close(() => {
-                setTimeout(() => {
-                  tryPort(port).then(resolve).catch(reject);
-                }, 1000);
-              });
-            } else {
-              reject(err);
-            }
-          });
+        server.listen(5000, '0.0.0.0', () => {
+          log(`Server running at http://0.0.0.0:5000`);
         });
-      } catch (error) {
-        console.error('Failed to start server:', error);
-        process.exit(1);
+      } catch (error: any) {
+        if (error.code === 'EADDRINUSE' && retries < MAX_RETRIES) {
+          log(`Port 5000 is in use, retrying in ${RETRY_DELAY}ms...`);
+          retries++;
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          await startServer();
+        } else {
+          throw error;
+        }
       }
     };
 
-    await tryPort(5000);
+    await startServer();
 
   } catch (error) {
     console.error('Server startup error:', error);

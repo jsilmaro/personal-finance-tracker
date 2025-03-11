@@ -7,22 +7,26 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
-export const apiRequest = async (url: string, options: RequestInit = {}) => {
+export const apiRequest = async <T>(url: string, method: string = "GET", data?: any): Promise<T> => {
   try {
-    const res = await fetch(url, {
-      ...options,
+    const options: RequestInit = {
+      method,
       headers: {
         "Content-Type": "application/json",
-        ...options.headers,
       },
       credentials: "include",
-    });
+    };
 
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+
+    const res = await fetch(url, options);
     await throwIfResNotOk(res);
-    return await res.json();
+    return res.json();
   } catch (error) {
     console.error(`API request error for ${url}:`, error);
-    throw error; // Re-throw for proper error handling
+    throw error;
   }
 };
 

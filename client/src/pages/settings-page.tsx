@@ -13,6 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { User } from "@shared/schema";
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -32,10 +33,10 @@ export default function SettingsPage() {
     { value: "CNY", label: "Chinese Yuan (¥)" },
   ];
 
-  const updateCurrencyMutation = useMutation({
+  const updateCurrencyMutation = useMutation<User, Error, string>({
     mutationFn: async (currency: string) => {
-      const res = await apiRequest("PATCH", "/api/user/settings", { currency });
-      return res.json();
+      const response = await apiRequest<User>("/api/user/settings", "PATCH", { currency });
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -44,6 +45,13 @@ export default function SettingsPage() {
       toast({
         title: "Currency Updated",
         description: "Your currency preference has been updated.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to update currency",
+        description: error.message,
+        variant: "destructive",
       });
     },
   });
