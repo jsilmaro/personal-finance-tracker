@@ -4,6 +4,9 @@ import { setupVite, serveStatic, log } from "./vite";
 import session from "express-session";
 import cors from "cors";
 import { storage } from "./storage";
+import { createServer } from "http";
+import { AddressInfo } from "net";
+import { checkPortAvailable } from "./port-check";
 
 declare module 'express-session' {
   interface SessionData {
@@ -53,6 +56,15 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
+    log('Starting server initialization...');
+
+    // Check if port is available
+    const isPortAvailable = await checkPortAvailable(5000);
+    if (!isPortAvailable) {
+      log('Port 5000 is already in use. Please ensure no other instance is running.');
+      process.exit(1);
+    }
+
     const server = await registerRoutes(app);
 
     // Global error handler
@@ -89,13 +101,8 @@ app.use((req, res, next) => {
 
     // Start server
     server.listen(5000, '0.0.0.0', () => {
-      log(`Server running at http://0.0.0.0:5000`);
-    }).on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE') {
-        log('Port 5000 is already in use. Please ensure no other instance is running.');
-      }
-      console.error('Server startup error:', err);
-      process.exit(1);
+      const address = server.address() as AddressInfo;
+      log(`Server running at http://0.0.0.0:${address.port}`);
     });
 
   } catch (error) {
