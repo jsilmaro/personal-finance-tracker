@@ -37,7 +37,7 @@ export default function PieChart({ data, title }: PieChartProps) {
   };
 
   return (
-    <div className="w-full h-[300px] bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+    <div className="w-full h-[350px] bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
       {title && <h3 className="text-lg font-medium mb-2">{title}</h3>}
       <ResponsiveContainer width="100%" height="100%">
         <RechartsPieChart>
