@@ -1,27 +1,12 @@
 import { ResponsiveContainer, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
 interface BarChartProps {
-  data: Array<{ name: string; value: number }>;
-  title: string;
+  data: { name: string; value: number }[];
+  title?: string;
 }
 
-// Extended color palette with different colors for various categories
-const COLORS = [
-  '#0088FE', // Blue
-  '#00C49F', // Green
-  '#FFBB28', // Yellow
-  '#FF8042', // Orange
-  '#FF6B6B', // Red
-  '#8884D8', // Purple
-  '#4CAF50', // Darker Green
-  '#9C27B0', // Violet
-  '#3F51B5', // Indigo
-  '#795548', // Brown
-  '#607D8B', // Blue Gray
-  '#E91E63', // Pink
-];
-
-// Color map to ensure categories always get the same color
 const CATEGORY_COLORS: Record<string, string> = {
   Food: '#FF8042',
   Entertainment: '#FFBB28',
@@ -41,7 +26,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default function BarChart({ data, title }: BarChartProps) {
   if (!data || data.length === 0) {
-    return <div className="flex h-[300px] items-center justify-center">No data available</div>;
+    return <div className="flex h-[300px] items-center justify-center bg-white dark:bg-gray-800 rounded-lg p-4">No data available</div>;
   }
 
   // Get color for a category, either from map or fallback to rotation
@@ -50,7 +35,7 @@ export default function BarChart({ data, title }: BarChartProps) {
   };
 
   return (
-    <div className="w-full h-[300px]">
+    <div className="w-full h-[300px] bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
       {title && <h3 className="text-lg font-medium mb-2">{title}</h3>}
       <ResponsiveContainer width="100%" height="100%">
         <RechartsBarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
