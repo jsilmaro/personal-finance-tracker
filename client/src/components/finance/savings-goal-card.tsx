@@ -6,6 +6,8 @@ import { useState } from "react";
 import { SavingsGoal } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import { getCurrencySymbol } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface SavingsGoalCardProps {
   goal: SavingsGoal;
@@ -14,17 +16,53 @@ interface SavingsGoalCardProps {
 
 export default function SavingsGoalCard({ goal, onContribute }: SavingsGoalCardProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [contributionAmount, setContributionAmount] = useState("10");
   const [isContributing, setIsContributing] = useState(false);
-  const progress = (goal.currentAmount / goal.targetAmount) * 100;
-  const currencySymbol = getCurrencySymbol(user?.currency || "USD");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleContribute = () => {
+  const progress = (goal.currentAmount / goal.targetAmount) * 100;
+  const currencySymbol = getCurrencySymbol(user?.currency || "PHP");
+
+  const handleContribute = async () => {
     const amount = parseFloat(contributionAmount);
-    if (!isNaN(amount) && amount > 0 && onContribute) {
-      onContribute(amount);
-      setIsContributing(false);
-      setContributionAmount("10");
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid positive number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount + goal.currentAmount > goal.targetAmount) {
+      toast({
+        title: "Amount too high",
+        description: `Maximum contribution allowed is ${currencySymbol}${(goal.targetAmount - goal.currentAmount).toFixed(2)}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      if (onContribute) {
+        await onContribute(amount);
+        setIsContributing(false);
+        setContributionAmount("10");
+        toast({
+          title: "Success",
+          description: "Contribution added successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add contribution",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -68,14 +106,30 @@ export default function SavingsGoalCard({ goal, onContribute }: SavingsGoalCardP
                     onChange={(e) => setContributionAmount(e.target.value)}
                     placeholder="Amount"
                     className="flex-1"
+                    step="0.01"
+                    min="0"
+                    max={goal.targetAmount - goal.currentAmount}
                   />
-                  <Button onClick={handleContribute}>Add</Button>
+                  <Button 
+                    onClick={handleContribute}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      'Add'
+                    )}
+                  </Button>
                 </div>
                 <Button 
                   variant="ghost" 
                   size="sm"
                   className="w-full text-xs"
-                  onClick={() => setIsContributing(false)}
+                  onClick={() => {
+                    setIsContributing(false);
+                    setContributionAmount("10");
+                  }}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>

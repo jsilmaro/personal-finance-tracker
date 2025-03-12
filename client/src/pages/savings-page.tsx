@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
-import { SavingsGoal } from "@shared/schema";
+import { SavingsGoal, InsertSavingsGoal } from "@shared/schema";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,17 +16,20 @@ import { insertSavingsGoalSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import PieChart from "@/components/charts/pie-chart";
 import SavingsGoalCard from "@/components/finance/savings-goal-card";
+import { useToast } from "@/hooks/use-toast";
+import { getCurrencySymbol } from "@/lib/utils";
 
 export default function SavingsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isAddingGoal, setIsAddingGoal] = useState(false);
-  
+  const { toast } = useToast();
+
   const { data: savingsGoals, isLoading } = useQuery<SavingsGoal[]>({
     queryKey: ["/api/savings-goals"],
   });
 
-  const form = useForm({
+  const form = useForm<InsertSavingsGoal>({
     resolver: zodResolver(insertSavingsGoalSchema),
     defaultValues: {
       name: "",
@@ -35,24 +38,44 @@ export default function SavingsPage() {
   });
 
   const createGoalMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const res = await apiRequest("POST", "/api/savings-goals", data);
-      return res.json();
+    mutationFn: async (data: InsertSavingsGoal) => {
+      return apiRequest<SavingsGoal>("/api/savings-goals", "POST", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/savings-goals"] });
       setIsAddingGoal(false);
       form.reset();
+      toast({
+        title: "Success",
+        description: "Savings goal created successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create savings goal",
+        variant: "destructive",
+      });
     },
   });
 
   const contributeToGoalMutation = useMutation({
     mutationFn: async ({ goalId, amount }: { goalId: number; amount: number }) => {
-      const res = await apiRequest("PATCH", `/api/savings-goals/${goalId}`, { amount });
-      return res.json();
+      return apiRequest<SavingsGoal>(`/api/savings-goals/${goalId}`, "PATCH", { amount });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/savings-goals"] });
+      toast({
+        title: "Success",
+        description: "Contribution added successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add contribution",
+        variant: "destructive",
+      });
     },
   });
 
@@ -75,16 +98,18 @@ export default function SavingsPage() {
     return acc;
   }, [] as { name: string; value: number }[]) || [];
 
+  const currencySymbol = getCurrencySymbol(user?.currency || "PHP");
+
   return (
     <div className="min-h-screen bg-[linear-gradient(to_top,#a7a6cb_0%,#8989ba_52%,#8989ba_100%)]">
       <div className="flex h-screen">
         <div className="w-64 flex-none">
           <Sidebar />
         </div>
-        
+
         <div className="flex-1 flex flex-col">
           <Header />
-          
+
           <main className="flex-1 overflow-y-auto p-6">
             <div className="max-w-7xl mx-auto space-y-6">
               <div className="flex justify-between items-center">
@@ -97,7 +122,7 @@ export default function SavingsPage() {
                     <DialogHeader>
                       <DialogTitle>Create New Savings Goal</DialogTitle>
                     </DialogHeader>
-                    
+
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit((data) => createGoalMutation.mutate(data))} className="space-y-4">
                         <FormField
@@ -119,7 +144,7 @@ export default function SavingsPage() {
                           name="targetAmount"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Target Amount</FormLabel>
+                              <FormLabel>Target Amount ({currencySymbol})</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -138,7 +163,14 @@ export default function SavingsPage() {
                           className="w-full"
                           disabled={createGoalMutation.isPending}
                         >
-                          Create Goal
+                          {createGoalMutation.isPending ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Creating...
+                            </>
+                          ) : (
+                            'Create Goal'
+                          )}
                         </Button>
                       </form>
                     </Form>
@@ -175,7 +207,7 @@ export default function SavingsPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Total Saved</p>
                       <p className="text-2xl font-bold">
-                        ${savingsGoals?.reduce((sum, goal) => sum + Number(goal.currentAmount), 0).toFixed(2)}
+                        {currencySymbol} {savingsGoals?.reduce((sum, goal) => sum + Number(goal.currentAmount), 0).toFixed(2)}
                       </p>
                     </div>
                   </CardContent>
