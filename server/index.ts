@@ -102,7 +102,7 @@ app.use((req, res, next) => {
     // Start server
     server.listen(5000, '0.0.0.0', () => {
       const address = server.address() as AddressInfo;
-      log(`Server running at http://0.0.0.0:${address.port}`);
+      log(`Server running at http://localhost:${address.port}`);
     });
 
   } catch (error) {
